@@ -1,0 +1,24 @@
+{
+    "cources": [
+        {
+            "name": "Python",
+            "duration": "3 months",
+            "id": 1
+        },
+        {
+            "name": "JavaScript",
+            "duration": "2 months",
+            "id": 2
+        },
+        {
+            "name": "Data Science",
+            "duration": "4 months",
+            "id": 3
+        },
+        {
+            "name": "Masai School ",
+            "duration": "3 months",
+            "id": 4
+        }
+    ]
+}
