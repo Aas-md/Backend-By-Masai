@@ -4,7 +4,7 @@ let todoModel = require('./todoModel')
 const isLogin = require('./midlewares')
 
 
-todoRouter.post('/add-todo', isLogin, async (req, res) => {
+todoRouter.post('/add-todo', isLogin('user'), async (req, res) => {
 
     try {
         let todo = await todoModel.create({ ...req.body, createdBy: req.user })

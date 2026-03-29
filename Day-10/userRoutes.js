@@ -10,11 +10,11 @@ let jwt = require('jsonwebtoken');
 
 
 userRouter.post('/signup', async (req, res) => {
-    let { username, email, password } = req.body
+    let { username, email, password ,role} = req.body
 
     try {
         let hash = await bcrypt.hash(password, saltRounds)
-        let user = await UserModel.create({ username, email, password: hash })
+        let user = await UserModel.create({ username, email, password: hash ,role})
         res.status(201).json({ msg: "Signup successfull", user })
 
     } catch (err) {
@@ -32,7 +32,7 @@ userRouter.post('/login', async (req, res) => {
         let hash = user.password
         let result = await bcrypt.compare(password, hash)
         if (result) {
-            let token = jwt.sign({ userId : user._id }, process.env.JWT_SECRET);
+            let token = jwt.sign({ userId : user._id ,role : user.role}, process.env.JWT_SECRET);
             res.status(201).json({ msg: "Login successfull",token })
         }
         else
