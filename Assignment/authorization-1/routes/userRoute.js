@@ -30,13 +30,13 @@ router.post('/login', async (req, res) => {
             return res.status(404).json({ msg: "User not found" })
         }
         let result = await bcrypt.compare(password, user.password)
-      
+
 
         if (!result) {
             return res.status(401).json({ msg: "Invalid credentials" })
         } else {
-            var token = jwt.sign({userId :  user._id }, 'shhhhh');
-            res.status(200).json({ msg: "Login successful", user,token })
+            var token = jwt.sign({ userId: user._id }, 'shhhhh');
+            res.status(200).json({ msg: "Login successful", user, token })
         }
 
     } catch (err) {
@@ -49,15 +49,24 @@ router.get('/test-token', (req, res) => {
     token = token && token.split(' ')[1] // Bearer <token>
     console.log(token)
 
-    try{    
+    try {
         var decoded = jwt.verify(token, 'shhhhh');
-        
+
         res.status(200).json({ msg: "Token is valid", decoded })
-    }catch(err){
+    } catch (err) {
         res.status(401).json({ msg: "Invalid token", error: err.message })
     }
 
 })
+
+// router.post('/reset-token', async (req, res) => {
+
+//     try {
+
+//     } catch (err) {
+//         res.status(401).json({ msg: "Something went wrong", error: err.message })
+//     }
+// })
 
 
 
