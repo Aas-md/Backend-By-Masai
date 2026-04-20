@@ -7,6 +7,7 @@ var jwt = require('jsonwebtoken');
 
 let router = express.Router()
 let userModel = require('../Models/userModel')
+let isLoggedIn = require('../Midlewares/authMidleware')
 
 router.post('/signup', async (req, res) => {
 
@@ -57,6 +58,15 @@ router.get('/test-token', (req, res) => {
         res.status(401).json({ msg: "Invalid token", error: err.message })
     }
 
+})
+
+router.get('/profile', isLoggedIn, async (req, res) => {
+    try {
+        let user = await userModel.findById(req.user.userId)
+        res.json({ msg: "Profile fetched successfully", user })
+    } catch (err) {
+        res.status(500).json({ msg: "Something went wrong", error: err.message })
+    }
 })
 
 // router.post('/reset-token', async (req, res) => {
