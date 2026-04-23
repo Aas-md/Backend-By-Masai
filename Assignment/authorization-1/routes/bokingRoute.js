@@ -15,7 +15,8 @@ router.post('/', isLoggedIn, async (req, res) => {
         let user = await userModel.findById(req.user.userId)
 
         if (user.role === 'admin') {
-            res.status(403).json({ msg: "Admins cannot create bookings" })
+            return res.status(403).json({ msg: "Admins cannot create bookings" })
+
         }
 
         let booking = await bookingModel.create({ ...req.body, createdBy: user._id })
@@ -37,9 +38,9 @@ router.get('/', isLoggedIn, async (req, res) => {
             return res.json({ msg: "All bookings fetched successfully", bookings: allBookings })
         }
         let bookings = await bookingModel.find({ createdBy: user.userId }).populate('createdBy', 'name email')
-        res.json({ msg: "Bookings fetched successfully", bookings })
+        return res.json({ msg: "Bookings fetched successfully", bookings })
     } catch (err) {
-        res.status(500).json({ msg: "Something went wrong", error: err.message })
+        return res.status(500).json({ msg: "Something went wrong", error: err.message })
     }
 })
 
@@ -56,11 +57,11 @@ router.put('/:id', isLoggedIn, async (req, res) => {
         if (booking.createdBy.toString() !== user.userId || booking.status !== 'pending') {
             return res.status(403).json({ msg: "You are not authorized or the booking is not pending" })
         }
-        let updatedBooking = await bookingModel.findByIdAndUpdate(req.params.id, {  ...req.body }, { new: true })
-        res.json({ msg: "Booking updated successfully", booking: updatedBooking })
+        let updatedBooking = await bookingModel.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true })
+       return res.status(200).json({ msg: "Booking updated successfully", booking: updatedBooking })
 
     } catch (err) {
-        res.status(500).json({ msg: "Something went wrong", error: err.message })
+        return res.status(500).json({ msg: "Something went wrong", error: err.message })
     }
 })
 

@@ -55,7 +55,7 @@ router.get('/test-token', (req, res) => {
 
         res.status(200).json({ msg: "Token is valid", decoded })
     } catch (err) {
-        res.status(401).json({ msg: "Invalid token", error: err.message })
+        return res.status(401).json({ msg: "Invalid token", error: err.message })
     }
 
 })
@@ -63,9 +63,12 @@ router.get('/test-token', (req, res) => {
 router.get('/profile', isLoggedIn, async (req, res) => {
     try {
         let user = await userModel.findById(req.user.userId)
-        res.json({ msg: "Profile fetched successfully", user })
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" })
+        }
+        return res.json({ msg: "Profile fetched successfully", user })
     } catch (err) {
-        res.status(500).json({ msg: "Something went wrong", error: err.message })
+        return res.status(500).json({ msg: "Something went wrong", error: err.message })
     }
 })
 
