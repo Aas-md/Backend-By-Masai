@@ -58,7 +58,28 @@ router.put('/:id', isLoggedIn, async (req, res) => {
             return res.status(403).json({ msg: "You are not authorized or the booking is not pending" })
         }
         let updatedBooking = await bookingModel.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true })
-       return res.status(200).json({ msg: "Booking updated successfully", booking: updatedBooking })
+        return res.status(200).json({ msg: "Booking updated successfully", booking: updatedBooking })
+
+    } catch (err) {
+        return res.status(500).json({ msg: "Something went wrong", error: err.message })
+    }
+})
+
+router.delete('/:id', isLoggedIn, async (req, res) => {
+    try {
+
+        let booking = await bookingModel.findById(req.params.id)
+
+        if (!booking) {
+            return res.status(404).json({ msg: "Booking not found" })
+        }
+
+        if (req.user?.userId !== booking?.createdBy?.toString()) {
+            return res.status(403).json({ msg: "You are not authorized to delete this booking!" })
+        }
+
+        await bookingModel.deleteOne(booking)
+        return res.status(200).json({ msg: "Booking deleted successfully" })
 
     } catch (err) {
         return res.status(500).json({ msg: "Something went wrong", error: err.message })
