@@ -78,12 +78,40 @@ router.delete('/:id', isLoggedIn, async (req, res) => {
             return res.status(403).json({ msg: "You are not authorized to delete this booking!" })
         }
 
+        if (booking.status !== 'pending')
+            return res.status(400).json({ msg: "Only pending bookings can be deleted" })
+
         await bookingModel.deleteOne(booking)
         return res.status(200).json({ msg: "Booking deleted successfully" })
 
     } catch (err) {
         return res.status(500).json({ msg: "Something went wrong", error: err.message })
     }
+})
+
+// approve route.
+
+router.patch('/approve-booking/:id', isLoggedIn, async (req, res) => {
+
+    try {
+        let currentUser = await userModel.findById(req.user?.userId)
+
+        if (currentUser?.role !== 'admin')
+            return res.status(403).json({ msg: "Only admin can approve a booking and you are not admin!" })
+
+        let booking = await bookingModel.findById(req.params.id)
+        if (!booking)
+            return res.status(403).json({ msg: "Booking not found" })
+
+        booking.status = "approved"
+        let newBooking = await bookingModel.findByIdAndUpdate(req.params?.id,booking,{new : true})
+        return res.status(403).json({ msg: "Booking Approved", booking: newBooking })
+
+
+    } catch (err) {
+        return res.status(500).json({ msg: "Something went wrong", error: err.message })
+    }
+
 })
 
 module.exports = router
