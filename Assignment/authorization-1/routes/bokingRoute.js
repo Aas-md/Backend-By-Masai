@@ -104,10 +104,49 @@ router.patch('/approve-booking/:id', isLoggedIn, async (req, res) => {
             return res.status(403).json({ msg: "Booking not found" })
 
         booking.status = "approved"
-        let newBooking = await bookingModel.findByIdAndUpdate(req.params?.id,booking,{new : true})
-        return res.status(403).json({ msg: "Booking Approved", booking: newBooking })
+        let newBooking = await bookingModel.findByIdAndUpdate(req.params?.id, booking, { new: true })
+        return res.status(200).json({ msg: "Booking Approved", booking: newBooking })
 
 
+    } catch (err) {
+        return res.status(500).json({ msg: "Something went wrong", error: err.message })
+    }
+
+})
+
+
+router.patch('/reject/:id', isLoggedIn, async (req, res) => {
+
+    try {
+
+        let currentUser = await userModel.findById(req.user?.userId)
+
+        if (!currentUser || currentUser.role != "admin")
+            return res.status(403).json({ msg: "Only admin can Reject a booking and you are not admin!" })
+
+        let booking = await bookingModel.findById(req.params.id)
+        booking.status = "rejected"
+        let newBooking = await bookingModel.findByIdAndUpdate(req.params.id, booking, { new: true })
+        return res.status(403).json({ msg: "Booking Rejected", booking: newBooking })
+    } catch (err) {
+        return res.status(500).json({ msg: "Something went wrong", error: err.message })
+    }
+
+})
+
+router.delete('/delete-by-admin/:id', isLoggedIn, async (req, res) => {
+
+    try {
+        let currentUser = await userModel.findById(req.user?.userId)
+
+        if (!currentUser || currentUser.role != "admin")
+            return res.status(403).json({ msg: "Only admin can delete a booking and you are not admin!" })
+        let booking = await bookingModel.findById(req.params.id)
+
+        if (!booking)
+            return res.status(404).json({ msg: "Booking not found" })
+        await bookingModel.deleteOne(booking)
+        return res.status(200).json({ msg: "Booking deleted successfully" })
     } catch (err) {
         return res.status(500).json({ msg: "Something went wrong", error: err.message })
     }
