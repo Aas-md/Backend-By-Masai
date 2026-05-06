@@ -2,6 +2,10 @@ let express = require('express')
 let app = express()
 let UserModel = require('./userModel')
 const mongoose = require('mongoose');
+const userRouter = require('./userRouter')
+
+app.use(express.json())
+app.use('/users', userRouter)
 
 
 async function connectToDb() {
