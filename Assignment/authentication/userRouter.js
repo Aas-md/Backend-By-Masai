@@ -27,20 +27,46 @@ router.post('/login', async (req, res) => {
 
     try {
         let currUser = await UserModel.findOne({ email })
-        console.log(password, currUser.password)
+        if (!currUser)
+            return res.status(404).json({ msg: "User with this email not found!" })
         const isMatch = await bcrypt.compare(password, currUser.password)
 
         if (isMatch) {
-            return res.status(200).json({ msg: "Login Successful!", currUser })
+            let token = jwt.sign({ userId: currUser._id }, 'shhhhh', { expiresIn: '1h' });
+            return res.status(200).json({ msg: "Login Successful!", currUser, token })
         } else {
             return res.status(200).json({ msg: "email or passowrd invalid" })
         }
 
     } catch (err) {
 
-        res.status(400).json({ msg: "Some thing went wrong : ", error: err.message })
+        return res.status(400).json({ msg: "Some thing went wrong : ", error: err.message })
     }
 
+})
+
+router.get('/profile', async (req, res) => {
+
+    try {
+
+        let token = req.headers.authorization?.split(" ")[1]
+
+        if (!token)
+            return res.status(403).json({ msg: "Please login to your account" })
+
+        let decoded = jwt.verify(token, 'shhhhh')
+        let userId = decoded?.userId
+        req.user = decoded
+        if (!userId)
+            return res.status(403).json({ msg: "Please login to your account" })
+        let user = await UserModel.findById(userId)
+
+        return res.status(200).json({ msg: "Account details fetched successfully!", user })
+
+    } catch (err) {
+
+        return res.status(400).json({ msg: "Some thing went wrong : ", error: err.message })
+    }
 })
 
 module.exports = router
