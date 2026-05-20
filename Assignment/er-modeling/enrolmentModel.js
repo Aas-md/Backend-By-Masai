@@ -6,3 +6,7 @@ let enrolmentSchema = mongoose.Schema({
     enrolledAt: { type: Date, default: Date.now },
     isActive: { type: Boolean, default: true }
 })
+
+let enrolment = mongoose.model('Enrolment', enrolmentSchema);
+
+module.exports = enrolment;
