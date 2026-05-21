@@ -51,4 +51,22 @@ router.post('/enrolment', async (req, res) => {
     }
 })
 
+router.get('/student/courses/:studentId', async (req, res) => {
+
+    try {
+        let student = await Student.findById(req.params.studentId);
+
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" })
+        }
+
+        let enrolments = await Enrolment.find({ studentId: req.params.studentId }).populate('courseId', 'title description');
+        console.log(enrolments);
+
+        res.send("working fine")
+    } catch (err) {
+        return res.status(500).json({ message: err.message })
+    }
+})
+
 module.exports = router;
