@@ -31,7 +31,7 @@ router.post('/cource', async (req, res) => {
 
 router.post('/enrolment', async (req, res) => {
     try {
-        console.log(req.body);
+
         let student = await Student.findById(req.body.studentId);
         let cource = await Course.findById(req.body.courseId);
 
@@ -60,10 +60,11 @@ router.get('/student/courses/:studentId', async (req, res) => {
             return res.status(404).json({ message: "Student not found" })
         }
 
-        let enrolments = await Enrolment.find({ studentId: req.params.studentId }).populate('courseId', 'title description');
-        console.log(enrolments);
+        let enrolments = await Enrolment.find({ studentId: req.params.studentId }, { courseId: 1, _id: 0 }).populate('courseId')
+        enrolments = enrolments.map(enrolment => enrolment.courseId)
 
-        res.send("working fine")
+        return res.status(200).json({ student: student.name + " is enrolled in the below courses", courses: enrolments })
+
     } catch (err) {
         return res.status(500).json({ message: err.message })
     }
