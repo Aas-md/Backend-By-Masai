@@ -70,4 +70,47 @@ router.get('/student/courses/:studentId', async (req, res) => {
     }
 })
 
+
+router.get('/course/students/:courseId', async (req, res) => {
+    try {
+
+        let enrolements = await Enrolment.find({ courseId: req.params.courseId }, { studentId: 1, _id: 0 }).populate('studentId')
+        if (!enrolements) {
+            return res.status(404).json({ message: "No enrolments found for this course" })
+        }
+        let students = enrolements.map(enrolment => enrolment.studentId)
+        if (!students.length) {
+            return res.status(404).json({ message: "No students found for this course" })
+        }
+
+        return res.status(200).json({ course: "Students enrolled in this course are", students })
+    } catch (err) {
+        return res.status(500).json({ message: err.message })
+    }
+})
+
+router.delete('/student/:studentId', async (req, res) => {
+    try {
+
+
+        let student = await Student.findByIdAndUpdate(req.params.studentId, { isActive: false }, { new: true })
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" })
+        }
+
+        let enrolments = await Enrolment.find({ studentId: req.params.studentId })
+        if (!enrolments || !enrolments.length) {
+
+            return res.status(200).json({ message: "Student has been deactivated successfully! No active enrolments found for this student.", student })
+        }
+
+        enrolments = await Enrolment.updateMany({ studentId: req.params.studentId }, { isActive: false }, { new: true })
+
+        return res.status(200).json({ message: "Student and their enrolments have been deactivated successfully!", student })
+
+    } catch (err) {
+        return res.status(500).json({ message: err.message })
+    }
+})
+
 module.exports = router;
